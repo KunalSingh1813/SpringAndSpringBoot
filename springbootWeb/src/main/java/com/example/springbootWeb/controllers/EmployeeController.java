@@ -3,6 +3,7 @@ package com.example.springbootWeb.controllers;
 import com.example.springbootWeb.dto.EmployeeDTO;
 import com.example.springbootWeb.entities.EmployeeEntity;
 import com.example.springbootWeb.repositories.EmployeeRepository;
+import com.example.springbootWeb.services.EmployeeService;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -16,32 +17,40 @@ public class EmployeeController {
 //        return "secret message : adygdw%326V";
 //    }
 
-    private final EmployeeRepository employeeRepository;
+   private  final EmployeeService employeeService;
 
-    public EmployeeController(EmployeeRepository employeeRepository) {
-        this.employeeRepository = employeeRepository;
+    public EmployeeController(EmployeeService employeeService) {
+        this.employeeService = employeeService;
     }
 
+
     @GetMapping(path = "/{employeeID}")
-    public EmployeeEntity getEmployeeId(@PathVariable(name = "employeeId") Long id){
-       return employeeRepository.findById(id).orElse(null);
+    public EmployeeDTO getEmployeeId(@PathVariable(name = "employeeId") Long id){
+       return employeeService.getEmployeeById(id);
     }
 
     @GetMapping
-    public List<EmployeeEntity> getAllEmployees(@RequestParam(required = false) Integer age,
+    public List<EmployeeDTO> getAllEmployees(@RequestParam(required = false) Integer age,
                                                 @RequestParam(required = false) String sortBy){
-        return employeeRepository.findAll();
+        return employeeService.getAllEmployees();
     }
 
     @PostMapping
-    public EmployeeEntity createNewEmployee(@RequestBody EmployeeEntity inputEmployee)
+    public EmployeeDTO createNewEmployee(@RequestBody EmployeeDTO inputEmployee)
     {
-       return employeeRepository.save(inputEmployee);
+       return employeeService.createNewEmployee(inputEmployee);
     }
 
-    @PutMapping String updateEmployeeByid()
+    @PutMapping(path="/{employeeId}")
+    public EmployeeDTO updateEmployeeById(@RequestBody EmployeeDTO employeeDTO, @PathVariable Long employeeId)
     {
-        return "Hello from PUT";
+        return employeeService.updateEmployeeId(employeeId, employeeDTO);
+    }
+
+    @DeleteMapping(path="/{employeeId}")
+    public void DeleteEmployeeById(@PathVariable Long employeeId)
+    {
+        employeeService.deleteEmployeeById(employeeId);
     }
 
 }
