@@ -2,6 +2,7 @@ package com.example.springbootWeb.controllers;
 
 import com.example.springbootWeb.dto.EmployeeDTO;
 import com.example.springbootWeb.entities.EmployeeEntity;
+import com.example.springbootWeb.exceptions.ResourceNotFoundException;
 import com.example.springbootWeb.repositories.EmployeeRepository;
 import com.example.springbootWeb.services.EmployeeService;
 import jakarta.validation.Valid;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @RestController
@@ -29,12 +31,19 @@ public class EmployeeController {
     }
 
 
-    @GetMapping(path = "/{employeeID}")
+    @GetMapping(path = "/{employeeId}")
     public ResponseEntity<EmployeeDTO> getEmployeeId(@PathVariable(name = "employeeId") Long id){
        Optional<EmployeeDTO> employeeDTO = employeeService.getEmployeeById(id);
       return employeeDTO
               .map(employeeDTO1 -> ResponseEntity.ok(employeeDTO1))
-              .orElse(ResponseEntity.notFound().build());
+              .orElseThrow(()-> new ResourceNotFoundException("Employee not found with id: "+id));
+    }
+
+
+    //Handling exceptions for this particular Controller not globally
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<String> handleEmployeeNotFound(NoSuchElementException exception){
+        return new ResponseEntity<>("Employee Not Found", HttpStatus.NOT_FOUND);
     }
 
     @GetMapping
@@ -51,7 +60,7 @@ public class EmployeeController {
     }
 
     @PutMapping(path="/{employeeId}")
-    public ResponseEntity<EmployeeDTO> updateEmployeeById(@RequestBody EmployeeDTO employeeDTO, @PathVariable Long employeeId)
+    public ResponseEntity<EmployeeDTO> updateEmployeeById(@RequestBody @Valid EmployeeDTO employeeDTO, @PathVariable Long employeeId)
     {
         return ResponseEntity.ok(employeeService.updateEmployeeId(employeeId, employeeDTO));
     }
