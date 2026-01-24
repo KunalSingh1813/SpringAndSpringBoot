@@ -1,6 +1,7 @@
 package com.JpaTutorial.JpaTutorial.repositories;
 
 import com.JpaTutorial.JpaTutorial.entities.ProductEntity;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -20,7 +21,8 @@ public interface ProductRepository extends JpaRepository<ProductEntity , Long> {
 
     List<ProductEntity> findByQuantityGreaterThanAndPriceLessThan(int quantity, BigDecimal price);
 
-    List<ProductEntity> findByTitleLike(String title);
+//    List<ProductEntity> findByOrderByPrice();
+List<ProductEntity> findBy(Sort by);
 
     List<ProductEntity> findByTitleContaining(String title); //It will generate % wildcard on its own
 
