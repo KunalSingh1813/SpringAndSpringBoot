@@ -10,6 +10,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.stereotype.Controller;
@@ -29,6 +30,9 @@ public class AuthController {
     private final UserService userService;
     private final AuthService authService;
 
+    @Value("${deploy.env}")
+    private String deployEnv;
+
     @PostMapping("/signup")
     public ResponseEntity<UserDTO> signUp(@RequestBody SignupDTO signupDto){
         UserDTO userDto = userService.signUp(signupDto);
@@ -42,7 +46,7 @@ public class AuthController {
         //Paasing HTTP Only cookie from backend
         Cookie cookie = new Cookie("refreshToken",loginResponseDto.getRefreshToken());
         cookie.setHttpOnly(true); //make sure that cookie cannot be accessed by any other means other than HTTP Methods anc cannot be accessed by javascript
-        //cookie.setSecure(true);  - Use in HTTPS scenario.
+        cookie.setSecure("production".equals(deployEnv));  // Use in HTTPS scenario.
         response.addCookie(cookie);
         return ResponseEntity.ok(loginResponseDto);
     }
