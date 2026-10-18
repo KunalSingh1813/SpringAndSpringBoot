@@ -41,4 +41,8 @@ public class AuthService {
         return new LoginResponseDto(user.getId(), AccessToken, refreshtoken);
 
     }
+
+    public void logout(String refreshToken) {
+        sessionService.deleteSession(refreshToken);
+    }
 }

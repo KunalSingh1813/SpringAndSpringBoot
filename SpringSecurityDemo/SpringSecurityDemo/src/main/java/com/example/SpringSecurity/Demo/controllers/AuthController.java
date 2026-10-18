@@ -63,4 +63,22 @@ public class AuthController {
       return ResponseEntity.ok(loginResponseDto);
 
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response){
+        String refreshToken =   Arrays.stream(request.getCookies())
+                .filter(cookie->"refreshToken".equals(cookie.getName()))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElseThrow(() -> new AuthenticationServiceException("Refresh Token not found in cookies"));
+        authService.logout(refreshToken);
+
+        //Clear cookie from browser
+        Cookie cookie = new Cookie("refreshToken","");
+        cookie.setHttpOnly(true);
+        cookie.setSecure("production".equals(deployEnv));
+        cookie.setMaxAge(0);  //tells the browser to delete
+
+        return ResponseEntity.noContent().build(); //204
+    }
 }
