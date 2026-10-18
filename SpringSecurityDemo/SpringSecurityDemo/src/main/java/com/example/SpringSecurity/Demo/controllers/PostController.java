@@ -2,9 +2,13 @@ package com.example.SpringSecurity.Demo.controllers;
 
 
 import com.example.SpringSecurity.Demo.dto.PostDTO;
+import com.example.SpringSecurity.Demo.entities.PostEntity;
 import com.example.SpringSecurity.Demo.entities.User;
+import com.example.SpringSecurity.Demo.exceptions.ResourceNotFoundException;
+import com.example.SpringSecurity.Demo.repositories.PostRepository;
 import com.example.SpringSecurity.Demo.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +20,8 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
+    private final PostRepository postRepository;
+    private final ModelMapper modelMapper;
 
     @GetMapping
     public List<PostDTO> getAllPosts() {
@@ -24,7 +30,10 @@ public class PostController {
 
     @GetMapping("/{postId}")
     public PostDTO getPostById(@PathVariable Long postId) {
-        return postService.getPostById(postId);
+        PostEntity postEntity = postRepository
+                .findById(postId)
+                .orElseThrow(()-> new ResourceNotFoundException("Post not found with id "+postId));
+        return modelMapper.map(postEntity, PostDTO.class);
     }
 
     @PostMapping
